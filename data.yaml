@@ -1,0 +1,5 @@
+train: ..Train_data/train/images
+val: ..Train_data/valid/images
+
+nc: 3
+names: ['Shape_180', 'Shape_45', 'Shape_90']
