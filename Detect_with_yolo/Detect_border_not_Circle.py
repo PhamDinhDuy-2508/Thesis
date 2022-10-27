@@ -46,6 +46,7 @@ class Algro :
         self.area_curve_y=[]
         self.area_curve=[]
         self.list_curve = []
+        self.Hash = None
 
 
 
@@ -372,10 +373,6 @@ class Algro :
             # print(abs(math.degrees(math.acos(angle3))) ,vector1 , vector2 , start_point  , mid_point , end_point)
             angle2 = round(angle2,2)
 
-
-
-
-
             if (abs(math.degrees(math.acos(angle2))) ) > 1:
                 point_result.append(mid_point)
 
@@ -390,7 +387,6 @@ class Algro :
                 math.pow(test_vec2[0], 2) + math.pow(test_vec2[1], 2)))
 
         point_result.append( point[point.__len__()-1])
-        # point_result.append(point_result[0])
 
 
         start = point_result.__len__()-1
@@ -441,15 +437,11 @@ class Algro :
                  pass
 
 
-
-
         f = open('bientho.txt', "w")
 
         for i in range(0, point_result.__len__()):
             self.Write_file(f, point_result[i][0], point_result[i][1])
         f.close()
-        # self.draw(point_result)
-        # self.draw_2(point_result)
 
         object =  filter_point.Filter(self.list_point ,point_result , tem_dict)
         object.Smooth_Line()
@@ -470,29 +462,26 @@ class Algro :
         # print("final_res" , res)
         self.draw(res)
         self.curve =  object.get_Curve()
-        Hash = object.get_line_Area()
-        # print(Hash)
-        mesing_class =  Meshing.Meshing()
-        mesing_class.Set_Hastable_Segment(Hash)
+        self.Hash = object.get_line_Area()
+        print("Hash" , self.Hash)
         object.Curve_fiter()
 
+        # mesing_class =  Meshing.Meshing()
+        # mesing_class.Set_Hastable_Segment(self.Hash)
+        # mesing_class.Messing_2()
 
 
-        self.draw_3(Hash)
+        self.draw_3(self.Hash)
 
         f = open('bienhoanchinh.txt', "w")
-        mesing_class.Set_Lisegment(point_result)
-        mesing_class.Meshing()
+        # mesing_class.Set_Lisegment(point_result)
+        # mesing_class.Meshing_Process()
         self.draw(res)
-
 
 
         for i in range(0, res.__len__()):
             self.Write_file(f, res[i][0], res[i][1])
         f.close()
-
-
-
 
 
         # self.draw(point_result)
@@ -805,7 +794,14 @@ class Algro :
         self.key_val.clear()
         self.key_val =  key_new
         return res
+    def get_Hash(self):
+        return self.Hash
 
 if __name__ == '__main__':
     al =  Algro()
+
+
+
+
+
 

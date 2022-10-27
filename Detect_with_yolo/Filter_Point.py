@@ -323,7 +323,6 @@ class Filter :
 
 
 
-        self.curve_list = self.check_Curve_Out_Curve_In(curve_list)
         self.Curve_Area =  self.check_Curve_Out_Curve_In(curve_list)
 
         # print("result", result)
@@ -345,14 +344,18 @@ class Filter :
                 res.append([result[j - 1], max_distance, result[j]])
 
         point = [ self.list_point_filter[1] , self.list_point_filter[self.list_point_filter.__len__() - 1] , self.list_point_filter[self.list_point_filter.__len__() - 2]  ]
-        if (res[0][0][0] == self.list_point_filter[0][0 ]and res[0][0][1] == self.list_point_filter[0][1]) :
-            p = [self.list_point_filter[self.list_point_filter.__len__() - 2], self.list_point_filter[0] , self.list_point_filter[1]]
-            print("Connect",p , self.get_angle_3_point(p))
-            if(self.get_angle_3_point(p) < 15) :
-                res[0][0] =self.list_point_filter[self.list_point_filter.__len__() - 1]
+        if(res.__len__() ==0) :
+            self.Filter([],[])
+        else :
+            if (res[0][0][0] == self.list_point_filter[0][0 ]and res[0][0][1] == self.list_point_filter[0][1]) :
+                p = [self.list_point_filter[self.list_point_filter.__len__() - 2], self.list_point_filter[0] , self.list_point_filter[1]]
+                print("Connect",p , self.get_angle_3_point(p))
+                if(self.get_angle_3_point(p) < 15) :
+                    res[0][0] =self.list_point_filter[self.list_point_filter.__len__() - 2]
+                    self.result.pop(self.result.__len__()-1)
+                    self.result.insert(0 , res[0][0])
 
-        print(res)
-        self.Curve_fitting_2(res)
+            self.Curve_fitting_2(res)
 
 
         return res
@@ -388,6 +391,7 @@ class Filter :
             y1 = []
             start.append(list[j][0])
             end.append(list[j][2])
+            print(list)
 
             if(self.key_point.get(tuple(list[j][0]))  > self.key_point.get(tuple(list[j][2]))+1) :
                 for i in range(-1, self.key_point.get(tuple(list[j][2])) + 1):
@@ -439,6 +443,7 @@ class Filter :
 
         self.x_curve  =  result_x
         self.y_curve =  result_y
+
 
 
         self.Filter(  result_x , result_y)
@@ -523,7 +528,6 @@ class Filter :
         i = 1
         while (i < lis_segment_temp.__len__()) :
 
-
             if(result_position.__len__() == 0 ) :
                 Hashtable[tuple(lis_segment_temp[i-1])] = ["Line" ,  tuple(lis_segment_temp[i-1]) ,tuple (lis_segment_temp[i])]
                 i+=1
@@ -531,9 +535,9 @@ class Filter :
                 Hashtable[tuple(lis_segment_temp[i - 1])] = ["Line", lis_segment_temp[i - 1],
                                                              lis_segment_temp[i]]
                 i+=1
-
             else :
-
+                if(list_curve_x.__len__() ==0) :
+                    continue
                 lis_segment_temp[i-1][0] =      list_curve_x[0][0]
                 lis_segment_temp[i - 1][1] =  lis_curve_y[0][0]
 
@@ -555,10 +559,8 @@ class Filter :
 
         for i in range(list_key.__len__())  :
             if(self.line_area.get(list_key[i])[0] == "Curve" or self.line_area.get(list_key[i])[0] == "curve" ) :
-
                 temp = [self.line_area.get(list_key[i-1]) , self.line_area.get(list_key[i]) , self.line_area.get(list_key[i+1])]
-                print(self.line_area.get(list_key[i-1])[1] , self.line_area.get(list_key[i-1])[2])
-                curve_Area.append(temp)
+
 
                 point_0 = self.line_area.get(list_key[i-1])[1]
                 point_1 = self.line_area.get(list_key[i-1])[2]
@@ -566,26 +568,47 @@ class Filter :
                 point_3  =self.line_area.get(list_key[i+1])[2]
                 point = [point_0 , point_1 ,  point_2]
                 if (self.get_angle_3_point_NONE_ABS(point) <= 87    and self.get_angle_3_point_NONE_ABS(point) > 10 ) :
+
                     self.line_area.get(list_key[i + 1])[1] = self.find_perpendicular("L" , point_1 , point_2 , point_3)
+                    print("Point" , point_2)
+
                     point_2 = self.line_area.get(list_key[i + 1])[1]
+                    if(curve_Area.__len__() == 0) :
+                        curve_Area.append([point_1 , point_2 , point_3])
+                    else :
+                        point_2[0] = curve_Area[0][0][0]
+                        self.line_area.get(list_key[i])[1][0] = point_2[0]
+                        self.line_area.get(list_key[i-1])[2][0] = point_2[0]
+
+
+
+
                     self.line_area.get(list_key[i])[1].append(point_2[0])
                     self.line_area.get(list_key[i])[2].append(point_2[1])
                 elif(self.get_angle_3_point_NONE_ABS(point) >= 93     and self.get_angle_3_point_NONE_ABS(point) <170  ) :
-                    print("L" , point_1 , point_2 ,  point_3)
 
                     self.line_area.get(list_key[i + 1])[1] = self.find_perpendicular("R", point_1,point_2 ,  point_3)
+
                     point_2 =  self.line_area.get(list_key[i + 1])[1]
+                    if (curve_Area.__len__() == 0):
+                        curve_Area.append([point_1, point_2, point_3])
+                    else:
+                        point_2[0] = curve_Area[0][0][0]
+                        self.line_area.get(list_key[i])[1][0] = point_2[0]
+                        self.line_area.get(list_key[i-1])[2][0] = point_2[0]
+
+
                     self.line_area.get(list_key[i])[1].append(point_2[0])
+
                     self.line_area.get(list_key[i])[2].append(point_2[1])
 
 
                 elif(abs(self.get_angle_3_point_NONE_ABS(point) - 0) < 10 or abs(self.get_angle_3_point_NONE_ABS(point) - 180) <10  ) :
-                    print("None")
                     pass
                 else :
-
-                    print("None")
                     pass
+
+        print("Print ara" , curve_Area)
 
     def find_perpendicular(self ,  signal ,  point1 ,  midpoint,  point2) :
         Hastable = defaultdict(lambda : list())
@@ -644,10 +667,11 @@ class Filter :
     def get_line_Area(self):
         return self.line_area
     def delete_line_in_curve(self ,  count , start , list_segment):
+        print("Start" , start)
         try :
             for j  in range (count  ,list_segment.__len__()) :
                 if (abs(start[0] - list_segment[j][0]) <= 4 and abs(start[1] - list_segment[j][1]) <= 4):
-                    return j
+                     return j
                 else :
                     continue
         except :

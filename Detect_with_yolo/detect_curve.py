@@ -641,9 +641,6 @@ class Filter :
 
         # print("find_perpendicular", self.get_angle_3_point(p), [point1, self.list_point_real[start_position], point2])
 
-
-
-
     def get_line_Area(self):
         return self.line_area
     def delete_line_in_curve(self ,  count , start , list_segment):

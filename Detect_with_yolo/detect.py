@@ -12,6 +12,7 @@ import Detect_border_not_Circle as Al
 import  tensorflow as tf
 from  tensorflow import  keras
 import  detect_curve as detect_curve
+import  Meshing
 
 
 
@@ -26,6 +27,7 @@ class Detect_Shape_C :
     list_circle =[]
     corner_list = []
     list_point = None
+    LIST_POint = []
 
     def __int__(self,path):
         self.path =  path
@@ -33,8 +35,16 @@ class Detect_Shape_C :
         self.list_circle = None
         self.corner_list = []
         self.list_point  = None
+        self. LIST_POint = []
+
     def setPath(self , path):
         self.path =   path
+    def get_LIST_POINT(self):
+        return self.LIST_POint
+    def getlist_point(self):
+        return self.list_point
+    def get_corner_list(self):
+        return self.corner_list
 
     def getcoordinate_from_API(self):
 
@@ -121,7 +131,7 @@ class Detect_Shape_C :
 
     def Canny_Edge(self):
         # image = cv2.imread("image/steelshapeC3.png")
-        image = cv2.imread("20220912_234920-removebg-preview.png")
+        image = cv2.imread("308237594_1259460388175741_8168632064918560623_n-removebg-preview.png")
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         blurred = cv2.GaussianBlur(gray, (5, 5), 0)
 
@@ -178,6 +188,7 @@ class Detect_Shape_C :
         cv2.imshow("goodFeaturesToTrack Corner Detection", img)
         cv2.waitKey()
         cv2.destroyAllWindows()
+
 
     def detect_Circle(self , image):
         src_img = image
@@ -249,22 +260,37 @@ class Detect_Shape_C :
 
         x_list = [x for [x, y] in list_point_1]
         y_list = [y for [x, y] in list_point_1]
+        self.LIST_POint =  list_point_1
 
-        object  =  Al.Algro()
-        object.set_List_Point(list_point_1)
-        object.Set_circle_list(self.list_circle)
-        object.using_corner(self.corner_list,self.list_point)
 
-        object.border_only()
+        # object  =  Al.Algro()
+        # object.set_List_Point(list_point_1)
+        # object.Set_circle_list(self.list_circle)
+        # object.using_corner(self.corner_list,self.list_point)
+        #
+        # object.border_only()
 
 if __name__ == '__main__':
+   Detect_not_circle =  Al.Algro()
    object = Detect_Shape_C()
+
    object.setPath("D:\Shape_Steel_C_3.png")
    object.getcoordinate_from_API()
    object.Draw_rectangel_in_image()
    object.Remove_bg()
-
    object.Canny_Edge()
+
+   Detect_not_circle.set_List_Point(object.get_LIST_POINT())
+   Detect_not_circle.Set_circle_list(object.list_circle)
+   Detect_not_circle.using_corner(object.get_corner_list(), object.getlist_point())
+
+   Detect_not_circle.border_only()
+   mesing_class = Meshing.Meshing()
+   mesing_class.Set_Hastable_Segment(Detect_not_circle.get_Hash())
+   mesing_class.processing_point()
+   mesing_class.Draw_model()
+
+
 
 
 
