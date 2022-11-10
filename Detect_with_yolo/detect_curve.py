@@ -583,11 +583,8 @@ class Filter :
 
 
                 elif(abs(self.get_angle_3_point_NONE_ABS(point) - 0) < 10 or abs(self.get_angle_3_point_NONE_ABS(point) - 180) <10  ) :
-                    print("None")
                     pass
                 else :
-
-                    print("None")
                     pass
 
     def find_perpendicular(self ,  signal ,  point1 ,  midpoint,  point2) :

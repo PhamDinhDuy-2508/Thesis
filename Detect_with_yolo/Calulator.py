@@ -40,9 +40,10 @@ class Calculator :
         self.Lis_Point = point
     def Set_Fix(self , position):
         self.fix .append(position)
-    def Set_Load(self , force , position):
-        self.Force =  force
+    def Set_Load_pos(self , position):
         self.load.append(position)
+    def Set_Load(self , force):
+        self.Force =  force
 
     def Fix_Object(self):
         pass
@@ -107,6 +108,7 @@ class Calculator :
             self.g.point(list_Center_cirle[i])
         for i in range(list_poit.__len__()):
             list_Surface.append(i)
+        self.Lis_Point = list_poit
 
         for i in range(list_poit.__len__() - 1):
             if (list_point_cirle.__len__() != 0):
@@ -161,6 +163,9 @@ class Calculator :
         # cfv.drawGeometry(self.g2)
 
         # cfv.showAndWait()
+    def add_element(self):
+        pass
+
     def check_radius(self , mid_point , start_point , center_point):
 
         hastable =  defaultdict(lambda :list())
@@ -205,8 +210,8 @@ class Calculator :
         mesh.el_size_factor = el_size_factor
         mesh.el_type = el_type
         mesh.dofs_per_node = dofs_per_node
-        cfv2.figure(fig_size=(10, 10))
-        cfv2.draw_geometry(self.g, title="Geometry")
+        # cfv2.figure(fig_size=(10, 10))
+        # cfv2.draw_geometry(self.g, title="Geometry")
 
 
 
@@ -246,14 +251,10 @@ class Calculator :
                                     elprop[elementmarkers[i]][0],
                                     elprop[elementmarkers[i]][1],
                                     ed[i, :])
-
                 von_mises.append(
                     np.math.sqrt(pow(es[0, 0], 2) - es[0, 0] * es[0, 1] + pow(es[0, 1], 2) + 3 * pow(es[0, 2], 2)))
-
             else:
-
                 # Handle quad elements
-
                 es, et = cfc.planqs(ex[i, :], ey[i, :],
                                     elprop[elementmarkers[i]][0],
                                     elprop[elementmarkers[i]][1],
@@ -262,13 +263,17 @@ class Calculator :
                 von_mises.append(np.math.sqrt(pow(es[0], 2) - es[0] * es[1] + pow(es[1], 2) + 3 * pow(es[2], 2)))
 
         # cfv2.figure(fig_size=(10, 10))
-        cfv.draw_element_values(von_mises, coords, edof, dofs_per_node, el_type, a,
+        # cfv.draw_element_values(von_mises, coords, edof, dofs_per_node, el_type, a,
+        #                         draw_elements=True, draw_undisplaced_mesh=False,
+        #                         title="Effective Stress", magnfac=25.0)
+        # cfv.show_and_wait()
+        cfv2.draw_element_values(von_mises, coords, edof, dofs_per_node, el_type, a,
                                 draw_elements=True, draw_undisplaced_mesh=False,
                                 title="Effective Stress", magnfac=25.0)
+        # cfv2.show()
 
 
-        # cfv2.colorbar()
-        cfv2.showAndWait()
+
 
 
 

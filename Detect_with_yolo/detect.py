@@ -1,10 +1,11 @@
 import io
 import math
+import multiprocessing
+import threading
 
 import cv2
 import imutils
 import requests
-from Crypto import Math
 from PIL import Image
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 import  numpy as np
@@ -13,7 +14,6 @@ import  tensorflow as tf
 from  tensorflow import  keras
 import  detect_curve as detect_curve
 import  Meshing
-
 
 
 import matplotlib as mpl
@@ -263,13 +263,6 @@ class Detect_Shape_C :
         self.LIST_POint =  list_point_1
 
 
-        # object  =  Al.Algro()
-        # object.set_List_Point(list_point_1)
-        # object.Set_circle_list(self.list_circle)
-        # object.using_corner(self.corner_list,self.list_point)
-        #
-        # object.border_only()
-
 if __name__ == '__main__':
    Detect_not_circle =  Al.Algro()
    object = Detect_Shape_C()
@@ -288,7 +281,31 @@ if __name__ == '__main__':
    mesing_class = Meshing.Meshing()
    mesing_class.Set_Hastable_Segment(Detect_not_circle.get_Hash())
    mesing_class.processing_point()
-   mesing_class.Draw_model()
+   # mesing_class.scale(0,600)
+   # mesing_class.scale_process(0 ,600  , mesing_class.get_point_scale())
+   # mesing_class.draw_model()
+
+   # mesing_class.scale_process()
+
+
+   # print(threading.Thread.name)
+   #
+   # x = threading.Thread(target=mesing_class.input)
+   # x.start()
+
+   # print(threading.Thread.getName(x))
+   mesing_class.Messing_2()
+
+
+   # mesing_class.input()
+
+   # mesing_class.Cal_displayment.Preprocessing()
+   #
+   # mesing_class.Cal_displayment.Cal_Displace()
+
+
+
+
 
 
 

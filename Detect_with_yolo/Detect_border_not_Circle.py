@@ -232,7 +232,6 @@ class Algro :
 
                 continue
         r_list = copy.deepcopy(list)
-        print(key_value)
         j = 0
         while(j <  self.list_point.__len__() or list.__len__()!= 0  ) :
             for i in range(0, list.__len__()):
@@ -252,7 +251,6 @@ class Algro :
         for i in range(0, self.list_point.__len__()):
             self.Write_file(f, self.list_point[i][0], self.list_point[i][1])
         f.close()
-        print(key_value)
         self.key_val =  key_value
         self.using_angle_corner(step , key_value)
         # res = self.line_process(step)

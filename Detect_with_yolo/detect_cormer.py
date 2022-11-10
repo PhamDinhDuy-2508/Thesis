@@ -1,140 +1,92 @@
-import calfem.core as cfc
-import calfem.geometry as cfg
-import calfem.mesh as cfm
-import calfem.vis_mpl as cfv
-import calfem.utils as cfu
+# -*- coding: utf-8 -*-
+#
+# example exs2
+# ----------------------------------------------------------------
+# PURPOSE
+#    Analysis of one dimensional heat flow.
+# ----------------------------------------------------------------
+
+# REFERENCES
+#     P-E Austrell 1994-03-08
+#     K-G Olsson 1995-09-28
+#     O Dahlblom 2004-09-07
+#     J Lindemann 2009-01-25
+# ----------------------------------------------------------------
+
 import numpy as np
+import calfem.core as cfc
 
-from scipy.sparse import lil_matrix
-t = 0.2
-v = 0.2
-E1 = 2e9
-E2 = 0.2e9
-ptype = 1
-ep = [ptype,t]
-D1 = cfc.hooke(ptype, E1, v)
-D2 = cfc.hooke(ptype, E2, v)
+# ----- Topology matrix Edof -------------------------------------
 
-# Define marker constants instead of using numbers in the code
+edof = np.array([
+    [1, 2],
+    [2, 3],
+    [3, 4],
+    [4, 5],
+    [5, 6]
+])
 
-mark_E1 = 55
-mark_E2 = 66
-mark_fixed = 70
-mark_load = 90
+# ----- Stiffness matrix K and load vector f ---------------------
 
-# Create dictionary for the different element properties
+K = np.mat(np.zeros((6, 6)))
+f = np.mat(np.zeros((6, 1)))
+f[3] = 10.0
 
-elprop = {}
-elprop[mark_E1] = [ep, D1]
-elprop[mark_E2] = [ep, D2]
+# ----- Element properties ---------------------------------------
 
-# Parameters controlling mesh
+ep1 = 25.0
+ep2 = 24.3
+ep3 = 0.4
+ep4 = 17.0
+ep5 = 7.7
 
-el_size_factor = 5    # Element size factor
-el_type = 3             # Triangle element
-dofs_per_node = 2        # Dof per node
-g = cfg.Geometry()
-g.point([282, 236]) # point 0
-g.point([171.5, 347.5]) # point 1
+# ----- Element stiffness matrices  ------------------------------
 
-g.point([283, 458]) # point 2
-g.point([347, 457]) # point 3
-g.point( [347, 402]) # point 4
+Ke1 = cfc.spring1e(ep1)
+Ke2 = cfc.spring1e(ep2)
+Ke3 = cfc.spring1e(ep3)
+Ke4 = cfc.spring1e(ep4)
+Ke5 = cfc.spring1e(ep5)
 
-g.point([282, 399]) # point 5
-g.point([229.0, 346.0]) # point 6
-g.point( [282, 293]) # point 7
+# ---- Assemble Ke into K ---------------------------------------
 
-g.point([346, 292]) # point 8
-g.point([346, 237]) # point 9
-g.point([282.5, 347.0]) # point 10
-g.point([282.0, 346.0]) # point 1111
+cfc.assem(edof[0, :], K, Ke1)
+cfc.assem(edof[1, :], K, Ke2)
+cfc.assem(edof[2, :], K, Ke3)
+cfc.assem(edof[3, :], K, Ke4)
+cfc.assem(edof[4, :], K, Ke5)
 
+print("Stiffness matrix K:")
+print(K)
 
+# ----- Solve the system of equations ----------------------------
 
-g.circle([0,10,1]  , marker = mark_E2)
-g.circle([1,10,2]  ,  marker = mark_E2)
-g.spline([2, 3]  ,marker = mark_load) # line 2
-g.spline([3, 4]) # line 2
+bc = np.array([1, 6])
+bcVal = np.array([-17.0, 20.0])
+a, r = cfc.solveq(K, f, bc, bcVal)
 
-g.spline([4, 5]) # line 2
-g.circle([5,11,6]  ,  marker = mark_E2)
-g.circle([6,11,7]  ,  marker = mark_E2)
-g.spline([7, 8]  , marker = mark_E2) # line 2
-g.spline([8, 9], marker = mark_E2) # line 2
-g.spline([9, 0] ,marker = mark_fixed) # line 2
-g.surface([0,1,2,3,4,5,6,7,8,9], marker = mark_E2)
+print("Displacements a:")
+print(a)
 
+print("Reaction forces r:")
+print(r)
 
+# ----- Element flows -------------------------------------------
 
+ed1 = cfc.extract_ed(edof[0, :], a)
+ed2 = cfc.extract_ed(edof[1, :], a)
+ed3 = cfc.extract_ed(edof[2, :], a)
+ed4 = cfc.extract_ed(edof[3, :], a)
+ed5 = cfc.extract_ed(edof[4, :], a)
 
+q1 = cfc.spring1s(ep1, ed1)
+q2 = cfc.spring1s(ep2, ed2)
+q3 = cfc.spring1s(ep3, ed3)
+q4 = cfc.spring1s(ep4, ed4)
+q5 = cfc.spring1s(ep5, ed5)
 
-mesh = cfm.GmshMeshGenerator(g)
-mesh.el_size_factor = el_size_factor
-mesh.el_type = el_type
-mesh.dofs_per_node = dofs_per_node
-cfv.figure(fig_size=(10,10))
-cfv.draw_geometry(g, title="Geometry")
-
-# Mesh the geometry:
-#  The first four return values are the same as those that trimesh2d() returns.
-#  value elementmarkers is a list of markers, and is used for finding the
-#  marker of a given element (index).
-
-coords, edof, dofs, bdofs, elementmarkers = mesh.create()
-nDofs = np.size(dofs)
-K = lil_matrix((nDofs,nDofs))
-
-ex, ey = cfc.coordxtr(edof, coords, dofs)
-
-for eltopo, elx, ely, elMarker in zip(edof, ex, ey, elementmarkers):
-
-    if el_type == 2:
-        Ke = cfc.plante(elx, ely, elprop[elMarker][0], elprop[elMarker][1])
-    else:
-        Ke = cfc.planqe(elx, ely, elprop[elMarker][0], elprop[elMarker][1])
-
-    cfc.assem(eltopo, K, Ke)
-bc = np.array([],'i')
-bcVal = np.array([],'i')
-
-bc, bcVal = cfu.applybc(bdofs, bc, bcVal, mark_fixed, 0.0)
-
-f = np.zeros([nDofs,1])
-
-cfu.applyforcetotal(bdofs, f, mark_load, value =- 5e5, dimension=2)
-
-a,r = cfc.spsolveq(K, f, bc, bcVal)
-ed = cfc.extractEldisp(edof, a)
-von_mises = []
-
-for i in range(edof.shape[0]):
-
-    # Handle triangle elements
-
-    if el_type == 2:
-        es, et = cfc.plants(ex[i,:], ey[i,:],
-                        elprop[elementmarkers[i]][0],
-                        elprop[elementmarkers[i]][1],
-                        ed[i,:])
-
-        von_mises.append( np.math.sqrt( pow(es[0,0],2) - es[0,0]*es[0,1] + pow(es[0,1],2) + 3*pow(es[0,2],2) ) )
-
-    else:
-
-        # Handle quad elements
-
-        es, et = cfc.planqs(ex[i,:], ey[i,:],
-                        elprop[elementmarkers[i]][0],
-                        elprop[elementmarkers[i]][1],
-                        ed[i,:])
-
-        von_mises.append( np.math.sqrt( pow(es[0],2) - es[0]*es[1] + pow(es[1],2) + 3*pow(es[2],2) ) )
-
-cfv.figure(fig_size=(10,10))
-cfv.draw_element_values(von_mises, coords, edof, dofs_per_node, el_type, a,
-                      draw_elements=True, draw_undisplaced_mesh=False,
-                      title="Effective Stress", magnfac=25.0)
-
-cfv.colorbar()
-cfv.showAndWait()
+print("q1 = "+str(q1))
+print("q2 = "+str(q2))
+print("q3 = "+str(q3))
+print("q4 = "+str(q4))
+print("q5 = "+str(q5))
