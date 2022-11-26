@@ -34,6 +34,7 @@ class Filter :
         self.step_stack_end_Curve=[]
         self.Curve_List =[]
         self.Curve_Area = []
+        self.stack_point=[]
 
     def get_result(self):
         return self.result
@@ -45,6 +46,7 @@ class Filter :
 
 
     def Smooth_Line(self):
+        print("Smoothline" ,self.list_point_filter)
         # print("smooth" , self.list_point_filter)
         for i in range(1 , self.list_point_filter.__len__()):
             if(abs(self.list_point_filter[i][0] - self.list_point_filter[i-1][0]) <4 ) :
@@ -76,6 +78,7 @@ class Filter :
                 # self.curve_detect(list_point , back_point)
 
             list_point = []
+
         self.Curve_detect_2(self.list_point_filter)
 
         # print("list key" ,   self.list_key )
@@ -84,9 +87,12 @@ class Filter :
         #     self.Connect_curve(self.curve_list)
     def get_Curve(self):
         return self.curve_list
+    def get_Stack(self):
+        return self.stack_point
 
 
-    def Curve_detect_2(self ,  _list):
+
+    def  Curve_detect_2(self ,  _list):
         stack = []
         point = []
         i = 0
@@ -102,24 +108,22 @@ class Filter :
             angle3 = (vector1[0] * vector2[0] + vector1[1] * vector2[1]) / (
                         math.sqrt(math.pow(vector1[0], 2) + math.pow(vector1[1], 2)) * math.sqrt(
                     math.pow(vector2[0], 2) + math.pow(vector2[1], 2)))
-            print(point , math.degrees(math.acos(angle3)))
+            # print(point , math.degrees(math.acos(angle3)))
+            # print(math.degrees(math.acos(angle3)) , point)
             if(angle3 > 1) :
                 angle3 = 1
-            if(math.degrees(math.acos(angle3)) < 50) :
 
-                    if(math.degrees(math.acos(angle3)) >50 ) :
-                        if(stack.__len__()!=0) :
-                            if(stack[stack.__len__()-1][0] == "Curve" and stack.__len__() != 0 ) :
-                                stack.append(["Curve", stack[stack.__len__() - 1][2], point[1]])
+            if(math.degrees(math.acos(angle3)) <= 61) :
+                    print(point , math.degrees(math.acos(angle3)))
 
-                        stack.append(['Line' , point[0], point[1]])
-                    elif( math.degrees(math.acos(angle3)) > 2 and abs( point[0][0] -point[1][0] ) < 60 and abs( point[0][1] -point[1][1] ) < 60 ):
+
+                    if( math.degrees(math.acos(angle3)) > 2 and abs( point[0][0] -point[1][0] ) < 60 and abs( point[0][1] -point[1][1] ) < 60 ):
                         if (stack.__len__() != 0):
                             if (stack[stack.__len__() - 1][0] == "Curve" and stack.__len__() != 0):
                                 stack.append(["Curve", stack[stack.__len__() - 1][2], point[1]])
 
                         if(step_Angle.__len__()!=0) :
-                            if (step_Angle[step_Angle.__len__() - 1] > 50):
+                            if (step_Angle[step_Angle.__len__() - 1] > 61):
                                 stack.append(["Line", point[0], point[1]])
                             else:
                                 if(abs( point[0][0] -point[1][0] ) < 60 and abs( point[0][1] -point[1][1] ) < 60) :
@@ -142,11 +146,11 @@ class Filter :
                 stack.append(['Line' ,point[0], point[1]])
                 i=i+1
             step_Angle.append(math.degrees(math.acos(angle3)))
-        print(stack)
+        print("STACK" ,  stack)
+
+        self.stak_point =  stack
 
         self.Connect_Curve_2(stack)
-
-
 
         pass
     def get_angle_3_point(self , point):
@@ -194,6 +198,7 @@ class Filter :
                     break
 
             if (stack[0][0] == "Line"):
+                print("LIne first")
                 if(stack.__len__() > 2) :
                     if (stack[0][2][0] == stack[1][1][0] and stack[0][2][1] == stack[1][1][1]):
                         point = [stack[0][1], stack[0][2], stack[1][2]]
@@ -206,6 +211,13 @@ class Filter :
                     # print(temp_back[temp_stack.__len__() - 1], stack[0][0] , stack[1][0], stack[0])
 
                     if(temp_back[temp_back.__len__()-1] == "Curve" and stack[1][0] == "Curve") :
+                        print(stack[0][1] , stack[0][2])
+                        print(stack[1][1] , stack[1][2])
+                        dis1 =  math.dist(stack[0][1] , stack[0][2])
+                        dis2 = math.dist(stack[1][1] , stack[0][2])
+                        print("dis" , dis1 , dis2)
+
+
                         if (abs(stack[0][1][0] - stack[0][2][0]) < 80 and abs(stack[0][1][1] - stack[0][2][1]) < 80):
 
                             start_Curve.append([stack[0][1], stack[0][2]])
@@ -231,11 +243,11 @@ class Filter :
                     elif (temp_back[temp_back.__len__() - 1] == "Line" and stack[1][0] == "Curve"):
                         if (stack[0][0] == "Line"):
                             angle = self.get_angle_3_point(point)
-
+                            print(stack[0] , stack[1] , stack[2])
                             if (angle < 48):
 
-                                if (abs(stack[0][1][0] - stack[0][2][0]) < 80 and abs(
-                                        stack[0][1][1] - stack[0][2][1]) < 80):
+                                if (abs(stack[0][1][0] - stack[0][2][0]) < 40 and abs(
+                                        stack[0][1][1] - stack[0][2][1]) < 40):
                                     stack[0][0] = "Curve"
 
                                     start_Curve.append([stack[0][1], stack[0][2]])
@@ -257,8 +269,8 @@ class Filter :
 
 
             else:
-                print("Line_Between", stack[0], abs(stack[0][1][0] - stack[0][2][0]),
-                      abs(stack[0][1][1] - stack[0][2][1]))
+                # print("Line_Between", stack[0], abs(stack[0][1][0] - stack[0][2][0]),
+                #       abs(stack[0][1][1] - stack[0][2][1]))
 
                 start_Curve.append([stack[0][1], stack[0][2]])
 
@@ -266,7 +278,7 @@ class Filter :
             temp_back_Point.append([stack[0][1] ,  stack[0][2]])
             stack.pop(0)
 
-        print("Stack" , start_Curve)
+        # print("Stack" , start_Curve)
 
         if(stack.__len__() == 2) :
              stack.pop(0)
@@ -391,7 +403,7 @@ class Filter :
             y1 = []
             start.append(list[j][0])
             end.append(list[j][2])
-            print(list)
+            # print(list)
 
             if(self.key_point.get(tuple(list[j][0]))  > self.key_point.get(tuple(list[j][2]))+1) :
                 for i in range(-1, self.key_point.get(tuple(list[j][2])) + 1):
@@ -476,8 +488,8 @@ class Filter :
 
         popt, _ = curve_fit(self.Objective_line, x, y)
 
-        print(x)
-        print(y)
+        # print(x)
+        # print(y)
         # summarize the parameter values
         a, b = popt
         # print('y = %.5f * x + %.5f' % (a, b))
@@ -556,59 +568,62 @@ class Filter :
     def Curve_fiter(self):
         list_key =  list( self.line_area.keys() )
         curve_Area = []
+        try:
 
-        for i in range(list_key.__len__())  :
-            if(self.line_area.get(list_key[i])[0] == "Curve" or self.line_area.get(list_key[i])[0] == "curve" ) :
-                temp = [self.line_area.get(list_key[i-1]) , self.line_area.get(list_key[i]) , self.line_area.get(list_key[i+1])]
+            for i in range(list_key.__len__())  :
+                if(self.line_area.get(list_key[i])[0] == "Curve" or self.line_area.get(list_key[i])[0] == "curve" ) :
+                    temp = [self.line_area.get(list_key[i-1]) , self.line_area.get(list_key[i]) , self.line_area.get(list_key[i+1])]
 
 
-                point_0 = self.line_area.get(list_key[i-1])[1]
-                point_1 = self.line_area.get(list_key[i-1])[2]
-                point_2 = self.line_area.get(list_key[i+1])[1]
-                point_3  =self.line_area.get(list_key[i+1])[2]
-                point = [point_0 , point_1 ,  point_2]
-                if (self.get_angle_3_point_NONE_ABS(point) <= 87    and self.get_angle_3_point_NONE_ABS(point) > 10 ) :
+                    point_0 = self.line_area.get(list_key[i-1])[1]
+                    point_1 = self.line_area.get(list_key[i-1])[2]
+                    point_2 = self.line_area.get(list_key[i+1])[1]
+                    point_3  =self.line_area.get(list_key[i+1])[2]
+                    point = [point_0 , point_1 ,  point_2]
+                    if (self.get_angle_3_point_NONE_ABS(point) <= 87    and self.get_angle_3_point_NONE_ABS(point) > 10 ) :
 
-                    self.line_area.get(list_key[i + 1])[1] = self.find_perpendicular("L" , point_1 , point_2 , point_3)
-                    print("Point" , point_2)
+                        self.line_area.get(list_key[i + 1])[1] = self.find_perpendicular("L" , point_1 , point_2 , point_3)
+                        # print("Point" , point_2)
 
-                    point_2 = self.line_area.get(list_key[i + 1])[1]
-                    if(curve_Area.__len__() == 0) :
-                        curve_Area.append([point_1 , point_2 , point_3])
+                        point_2 = self.line_area.get(list_key[i + 1])[1]
+                        if(curve_Area.__len__() == 0) :
+                            curve_Area.append([point_1 , point_2 , point_3])
+                        else :
+                            point_2[0] = curve_Area[0][0][0]
+                            self.line_area.get(list_key[i])[1][0] = point_2[0]
+                            self.line_area.get(list_key[i-1])[2][0] = point_2[0]
+
+
+
+
+                        self.line_area.get(list_key[i])[1].append(point_2[0])
+                        self.line_area.get(list_key[i])[2].append(point_2[1])
+                    elif(self.get_angle_3_point_NONE_ABS(point) >= 93     and self.get_angle_3_point_NONE_ABS(point) <170  ) :
+
+                        self.line_area.get(list_key[i + 1])[1] = self.find_perpendicular("R", point_1,point_2 ,  point_3)
+
+                        point_2 =  self.line_area.get(list_key[i + 1])[1]
+                        if (curve_Area.__len__() == 0):
+                            curve_Area.append([point_1, point_2, point_3])
+                        else:
+                            point_2[0] = curve_Area[0][0][0]
+                            self.line_area.get(list_key[i])[1][0] = point_2[0]
+                            self.line_area.get(list_key[i-1])[2][0] = point_2[0]
+
+
+                        self.line_area.get(list_key[i])[1].append(point_2[0])
+
+                        self.line_area.get(list_key[i])[2].append(point_2[1])
+
+
+                    elif(abs(self.get_angle_3_point_NONE_ABS(point) - 0) < 10 or abs(self.get_angle_3_point_NONE_ABS(point) - 180) <10  ) :
+                        pass
                     else :
-                        point_2[0] = curve_Area[0][0][0]
-                        self.line_area.get(list_key[i])[1][0] = point_2[0]
-                        self.line_area.get(list_key[i-1])[2][0] = point_2[0]
+                        pass
+        except :
+            pass
 
-
-
-
-                    self.line_area.get(list_key[i])[1].append(point_2[0])
-                    self.line_area.get(list_key[i])[2].append(point_2[1])
-                elif(self.get_angle_3_point_NONE_ABS(point) >= 93     and self.get_angle_3_point_NONE_ABS(point) <170  ) :
-
-                    self.line_area.get(list_key[i + 1])[1] = self.find_perpendicular("R", point_1,point_2 ,  point_3)
-
-                    point_2 =  self.line_area.get(list_key[i + 1])[1]
-                    if (curve_Area.__len__() == 0):
-                        curve_Area.append([point_1, point_2, point_3])
-                    else:
-                        point_2[0] = curve_Area[0][0][0]
-                        self.line_area.get(list_key[i])[1][0] = point_2[0]
-                        self.line_area.get(list_key[i-1])[2][0] = point_2[0]
-
-
-                    self.line_area.get(list_key[i])[1].append(point_2[0])
-
-                    self.line_area.get(list_key[i])[2].append(point_2[1])
-
-
-                elif(abs(self.get_angle_3_point_NONE_ABS(point) - 0) < 10 or abs(self.get_angle_3_point_NONE_ABS(point) - 180) <10  ) :
-                    pass
-                else :
-                    pass
-
-        print("Print ara" , curve_Area)
+        # print("Print ara" , curve_Area)
 
     def find_perpendicular(self ,  signal ,  point1 ,  midpoint,  point2) :
         Hastable = defaultdict(lambda : list())
@@ -667,7 +682,7 @@ class Filter :
     def get_line_Area(self):
         return self.line_area
     def delete_line_in_curve(self ,  count , start , list_segment):
-        print("Start" , start)
+        # print("Start" , start)
         try :
             for j  in range (count  ,list_segment.__len__()) :
                 if (abs(start[0] - list_segment[j][0]) <= 4 and abs(start[1] - list_segment[j][1]) <= 4):

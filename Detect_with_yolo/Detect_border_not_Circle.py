@@ -47,7 +47,9 @@ class Algro :
         self.area_curve=[]
         self.list_curve = []
         self.Hash = None
+        self.stack_point  =[]
 
+        self.object = None
 
 
 
@@ -442,8 +444,12 @@ class Algro :
         f.close()
 
         object =  filter_point.Filter(self.list_point ,point_result , tem_dict)
+        print("test")
         object.Smooth_Line()
         self.list_curve =  object.get_Curve()
+        self.stack_point =  object.get_Stack()
+        print("Check" , self.list_curve)
+        print("Stack" , object.get_Stack())
 
 
         list_curve_x = object.get_xy_curve() [0]
@@ -483,6 +489,8 @@ class Algro :
 
 
         # self.draw(point_result)
+    def get_stack_point(self):
+        return self.stack_point
 
     def compare_real_list_point(self , point_res ,  key_value):
 
@@ -594,6 +602,9 @@ class Algro :
 
         self.draw(      point_res)
         return result
+    def get_List_coorner(self):
+        return self.corner
+
 
     def using_corner(self ,  corner , list_point):
 
@@ -689,8 +700,6 @@ class Algro :
                 plt.plot(x,y , linewidth = 4)
                 self.area_curve.pop(0)
                 self.area_curve.pop(0)
-
-
 
 
 

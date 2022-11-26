@@ -495,15 +495,15 @@ class Meshing :
         # self.g.spline([ list_poit.__len__()-1 , 0 ])
         #
         # self.g.surface(list_Surface)
-        self.Cal_displayment.Set_Fix(5)
-        self.Cal_displayment.Set_Load_pos(2)
+        self.Cal_displayment.Set_Fix(0)
+        self.Cal_displayment.Set_Load_pos(3)
 
         self.Cal_displayment.Preprocessing()
 
-        for i in  range(1 , 5) :
+        for i in  range(1 , 2) :
 
 
-            self.Cal_displayment.Set_Load(i*4e5)
+            self.Cal_displayment.Set_Load(-i*4e5)
 
 
             self.Cal_displayment.Cal_Displace()
@@ -524,12 +524,12 @@ class Meshing :
         mesh.el_size_factor = 4
 
         coords, edof, dofs, bdofs, elementmarkers = mesh.create()
-        cfv.figure()
+        print("corr" ,  mesh.nodesOnSurface)
+        print("corr" , mesh.nodesOnCurve)
+
 
         # Draw the mesh.
-
         cfv.draw_mesh(coords=coords, edof=edof, dofs_per_node=mesh.dofs_per_node, el_type=mesh.el_type, filled=True)
-
         cfv.showAndWait()
 
     def get_angle_3_point(self, point):

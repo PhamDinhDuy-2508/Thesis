@@ -6,14 +6,14 @@ import threading
 import cv2
 import imutils
 import requests
-from PIL import Image
-from requests_toolbelt.multipart.encoder import MultipartEncoder
 import  numpy as np
 import Detect_border_not_Circle as Al
-import  tensorflow as tf
-from  tensorflow import  keras
-import  detect_curve as detect_curve
+# import  tensorflow as tf
+# from  tensorflow import  keras
+# import  detect_curve as detect_curve
 import  Meshing
+import visvis as vv
+
 
 
 import matplotlib as mpl
@@ -29,6 +29,7 @@ class Detect_Shape_C :
     list_point = None
     LIST_POint = []
 
+
     def __int__(self,path):
         self.path =  path
         self.response_json   = None
@@ -39,6 +40,7 @@ class Detect_Shape_C :
 
     def setPath(self , path):
         self.path =   path
+
     def get_LIST_POINT(self):
         return self.LIST_POint
     def getlist_point(self):
@@ -47,6 +49,7 @@ class Detect_Shape_C :
         return self.corner_list
 
     def getcoordinate_from_API(self):
+
 
         img = cv2.imread(self.path)
 
@@ -129,12 +132,17 @@ class Detect_Shape_C :
 
         return
 
-    def Canny_Edge(self):
+    def Canny_Edge(self ,  src):
         # image = cv2.imread("image/steelshapeC3.png")
-        image = cv2.imread("308237594_1259460388175741_8168632064918560623_n-removebg-preview.png")
+        # image = cv2.imread("C:/Users/pc/PycharmProjects/Thesis/Detect_with_yolo/nobackground/no-bg_1.png")
+        image =  cv2.imread(src)
+        image = cv2.imread("308129922_2243671462458093_8150599188767817903_n-removebg-preview.png")
+
+
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         blurred = cv2.GaussianBlur(gray, (5, 5), 0)
 
+        # cv2.imshow("test" ,  image)
         lap = cv2.Laplacian(image, cv2.CV_64F)
         canny = cv2.Canny(blurred, 30, 300)
         plt.imshow(self.fixColor(canny))
@@ -156,11 +164,10 @@ class Detect_Shape_C :
 
         cnts = imutils.grab_contours(cnts)
         c = max(cnts, key=cv2.contourArea)
-        cv2.drawContours(image, cnts, -1, (255, 0, 0), 2)
 
         cv2.boundingRect(cnts[0])
 
-        object.detect_Circle(image)
+        # object.detect_Circle(image)
 
 
         plt.imshow(self.fixColor(canny))
@@ -238,6 +245,7 @@ class Detect_Shape_C :
         k = 0
         for img in blob_imgs:
             cv2.imshow(str(k), img)
+
             self.haris(img)
 
             cv2.imshow("detectedLines", image)
@@ -264,14 +272,16 @@ class Detect_Shape_C :
 
 
 if __name__ == '__main__':
+   src = " "
    Detect_not_circle =  Al.Algro()
    object = Detect_Shape_C()
 
    object.setPath("D:\Shape_Steel_C_3.png")
-   object.getcoordinate_from_API()
-   object.Draw_rectangel_in_image()
+   # object.getcoordinate_from_API()
+   # object.Draw_rectangel_in_image()
    object.Remove_bg()
-   object.Canny_Edge()
+
+   object.Canny_Edge(src)
 
    Detect_not_circle.set_List_Point(object.get_LIST_POINT())
    Detect_not_circle.Set_circle_list(object.list_circle)
@@ -294,7 +304,9 @@ if __name__ == '__main__':
    # x.start()
 
    # print(threading.Thread.getName(x))
+   mesing_class.Draw_model()
    mesing_class.Messing_2()
+
 
 
    # mesing_class.input()

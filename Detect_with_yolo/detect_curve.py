@@ -87,6 +87,7 @@ class Filter :
 
 
     def Curve_detect_2(self ,  _list):
+        print("FILTER " , _list)
         stack = []
         point = []
         i = 0
