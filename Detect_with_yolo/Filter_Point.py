@@ -306,12 +306,8 @@ class Filter :
                 result.append(["curve", start_Curve[0], start_Curve[start_Curve.__len__() - 1]])
 
 
-
         curve_list = []
         listkey = list( self.key_point.keys() )
-
-
-
 
         for j in range(result.__len__()):
             test = result[j][1][0]
@@ -332,7 +328,6 @@ class Filter :
                             break
             curve_list.append(test)
             curve_list.append(test2)
-
 
 
         self.Curve_Area =  self.check_Curve_Out_Curve_In(curve_list)
